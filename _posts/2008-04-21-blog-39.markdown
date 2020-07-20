@@ -1,0 +1,84 @@
+---
+layout: post
+title: Linux内核模块编译、加载&卸载及查看运行结果
+date: 2008-04-21 22:04
+comments: true
+author: Peter.Y
+categories: linux
+---
+
+* content
+{:toc}
+
+
+
+花了一晚上的时间才搞出这么点名堂，有点丢人。不过丢人就丢人吧，总归得把这仅有的成果记录下来。
+
+[环境]
+>Vmware5.5 + Fedora8(Kernel:2.6.23.1-42.fc8-i586)
+
+[源代码hellomod.c]
+
+这里我仅使用了最简单的代码HelloWorld
+
+{% highlight c linenos %}
+
+#include<linux/module.h>
+#include<linux/kernel.h>
+#include<linux/init.h>
+MODULE_LICENSE("GPL")
+
+static int __init my_init(void)
+{
+      printk("<1>hello world!\n");
+      return 0;
+}
+
+static void __exit my_cleanup(void)
+{
+      printk("<1>GoodBye!\n");
+}
+
+module_init(my_init);
+module_exit(my_cleanup);
+
+{% endhighlight %}
+
+[Makefile文件内容]
+{% highlight makefile linenos %}
+obj-m += hellomod.o
+all:
+      make -C /lib/modules/`uname -r`/build M=`pwd` modules
+clean:
+      make -C /lib/modules/`uname -r`/build M=`pwd` clean</span>
+{% endhighlight %}
+
+* 说明：
+    C选项指定内核头文件的路径，所以如果这里不正确的话，就得仔细检查你的目录是不是正确。build只是一个符号链接，一般它指定的正是你的源码所在的目录，如果有的话。
+    如果它不能正确链接，那么可能是你的源码并未安装或者安装的版本与当前正在工作的内核不对应。这时你就需要安装正确的与当前内核匹配的源码(这步很重要，我就在这儿吃了亏，浪费很多时间)。
+
+[编译]
+
+好了，这时已经有两个文件了，hellomod.c和Makefile，随便找个目录放下，shell到这目录，输入make:
+>`MODPOST 1 modules`
+
+看到这个的话说明编译通过了，生成正确的内核模块文件hellomod.ko
+
+[加载]
+
+>执行`insmod hellomod.ko`
+
+[卸载]
+
+>`rmmod hellomod`
+
+[查看内核输出]
+
+>`tail /var/log/messages`
+
+这时就可以看到内核模块在加载和卸载时输出的信息了。
+
+* P.S 
+    本来是个挺简单的事情，结果由于我的FC8内核与源码不一致，导致编译通过的模块一直加载不了，报格式错误，折腾了好久才发现。
+    为什么很久呢，因为我uname -r出来，都说我是i686；另外我到/lib/modules/下，发现也是i686，但是我到里面随便找了个.ko文件，执行modinfo发现都依赖i586，这才让我找到真正原因。于是找出光盘，重装i586源码，再编译，一切正常。^_^
+

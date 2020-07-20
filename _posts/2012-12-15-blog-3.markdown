@@ -1,0 +1,55 @@
+---
+layout: post
+title: Autoconf & Automake使用小记
+date: 2012-12-15 14:12
+comments: true
+author: Peter.Y
+categories: tools
+---
+
+* content
+{:toc}
+
+经常看到Linux下的开源软件中包含挺多文件，虽然知道是autoconf和automake生成的，不过一直没怎么仔细研究过。今天有空来研究一下看看。
+
+##工具简介
+
+autoconf用于生成配置文件的工具，输入文件是configure.ac(早期版本后缀是.in)，输出文件是configure脚本<br />aclocal用于生成aclocal.m4<br />autoheader用于生成config.h.in，automake需要<br />automake用于生成Makefile，输入文件是Makefile.am
+
+##基本步骤
+
+1. 准备好源码，假定为test.cpp test.h
+
+2. 新建Makefile.am，内容如下：
+
+{%highlight make linenos%}
+bin_PROGRAMS=test
+test_SOURCES=test.cpp
+{%endhighlight%}
+
+3. autoscan
+    * 生成configure.scan
+    * mv configure.scan configure.ac :这是模板文件，需要手动修改
+    * 打开configure.ac，增加"AM_INIT_AUTOMAKE([test], 1.0)"
+
+--至此需要修改的文件已经准备好了--
+
+4. aclocal
+
+目录下增加aclocal.m4文件以及autom4te.cache目录
+
+5. autoheader
+目录下增加config.h.in
+
+6. autoconf
+目录下增加configure, configure.status
+
+7. automake -a
+目录下增加Makefile.in。这一步有可能会提示缺少一些文件，通常都是一些跟开源软件相关的文件，比如AUTHORS, NEWS, ChangeLog之类的
+
+--至此安装软件所需要的文件已经全部生成好了--
+
+之后只要执行熟悉的configure/make/make install就可以编译安装了。
+
+不过这样生成出来的脚本内容多余的内容很多，以后有时间再研究一下怎么去除吧。
+

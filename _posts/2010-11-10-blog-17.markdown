@@ -1,0 +1,45 @@
+---
+layout: post
+title: Linux内核编译配置过程
+date: 2010-11-10 23:11
+comments: true
+author: Peter.Y
+categories: linux
+---
+
+* content
+{:toc}
+
+
+
+这两天帮一同学折腾HIP，需要重新编译内核。现在把编译配置内核的过程记录下来。
+
+操作系统：Ubuntu 10.04
+
+步骤：
+
+1. 下载所需的内核包，解压到/usr/src/下；
+
+2. cd到内核源码根目录下，运行make mrproper，清理上次编译的结果文件以及配置文件；[可选]
+
+3. 进入到内核源码根目录下，运行make oldconfig，让内核按常用配置生成；
+    * 这里面还有其他一些选项，如defconfig，是默认配置
+
+4. 运行make menuconfig （需要ncurses软件包），这是在菜单模式下进行内核配置，可以选择将其编译built-in(设置为\*)或是内核模块(设置为M)；
+    * 还有其他的菜单配置，如xconfig
+
+5. 确认依赖性make dep； [可选]
+
+6. 编译内核映像文件，make bzImage，这步大约耗时0.5~1小时；
+
+7. 编译内核模块，之前选择为内核模块的组件现在被编译，执行make modules；
+
+8. 安装内核模块，执行`make modules_install`，这步就是把编译好的内核模块放到/lib/modules/内核版本号/下，以便于新内核启动后加载对应的内核模块；
+
+9. 建立要载入的内核映像文件，这步是把编好的内核放到/boot目录下，执行mkinitramfs -o /boot/initrd-linux2.6.XX.img 2.6.XX；
+
+10. 安装内核，执行make install，将内核相关的文件全部复制到/boot下；
+
+11. 最后一步，配置grub，使系统从新的内核引导。一般来说，这步因系统而异，在ubuntu10.04中需要修改/boot/grub/grub.cfg(以前的版本是修改menu.lst)，语法规则很好懂，一看便知。
+    * 需要注意的是，有时候改完了未必加载成功，可能仍然需要把系统根目录（即/）下的两个软链接vmlinuz和initrd.img一并修改为/boot下对应的新内核映像文件，才可以成功加载。
+

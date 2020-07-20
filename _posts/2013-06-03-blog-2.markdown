@@ -1,0 +1,31 @@
+---
+layout: post
+title: Packet Filter小记
+date: 2013-06-03 15:06
+comments: true
+author: Peter.Y
+categories: linux
+---
+
+* content
+{:toc}
+
+最近的任务基本上都与网络有关，于是就需要经常与抓包工具打交道。这里简单介绍一下，备查。
+
+网络抓包工具还是比较多的，Windows下比如Ethereal，Wireshark，Linux下大名鼎鼎的tcpdump。不过这些工具都依赖于pcap库。pcap库封装了网络抓包的许多API，对上层应用提供了一致的接口。有关pcap的资料请猛击[这里](http://en.wikipedia.org/wiki/Pcap)</a>。pcap库有linux版本libpcap和windows版本winpcap。
+
+这些工具使用起来方便简单，易于上手，且对于抓取到的数据包有固定的文件存储格式(.pcap,.cap)，便于互相读取。
+
+那么，pcap又是怎么做到去抓取网络数据包的呢？不同操作系统实现方法自然不同。此处主要以Linux为例。
+
+###1 BPF ([参考链接](http://zh.wikipedia.org/wiki/))
+
+首先要知道什么是BPF。BPF，全称Berkeley Packet Filter, 最早实现在BSD系统上。它提供了基于数据链路层的包的收发功能，使得用户可以接触到数据包的二层内容；并提供了基于BPF code的包过滤机制。BPF code是一种类汇编的小型语言（有关这种语言的介绍请猛击[这里](http://www.gsp.com/cgi-bin/man.cgi?topic=bpf)。这种小型语言在处理过滤问题上应用自如，也很容易读懂。当然，在实际使用中，我们可以使用tcpdump -d [expression]来生成对应的bpf code。
+
+###2 LSF Linux Socket Filter
+
+Linux基于BPF的实现。支持BPF code解析。在Linux中，提供了原始套接字，用户可以通过 sd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_IP)) 来创建；通过 setsockopt(fd, SOL_SOCKET, SO_ATTACH_FILTER, &filter, sizeof(fileter))来传入定义好的bpf code。这样能通过的包就会被送入到应用层给用户处理。
+
+###3 Linux包过滤实现
+
+这部分我还没有仔细了解，等有时间再来仔细研究它的实现方式。目前仅知道FreeBSD下采用JIT即时编译的方法去处理BPF code，Linux就是逐行解释执行了。不管是哪种机制，都是在内核收到包时，尽可能早地介入到了包的处理过程中去，以尽可能提高效率。

@@ -1,0 +1,25 @@
+# Site settings
+name: Peter Yang's Blog
+email: peter.yjzh@gmail.com
+author: Peter Yang
+url: https://peteryj.github.io
+resume_site: https://peteryj.github.io
+github: https://github.com/peteryj/
+baseurl: ""
+description: Focus on IT technology
+meta_description: Focus on IT technology
+motto: 千里之行始于足下
+banner: 积跬步以致千里
+
+#permalink: /:categories/:year/:month/:day/:title/
+permalink: /:year/:month/:day/:title/
+paginate: 10
+
+exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'Rakefile']
+
+github_username: peteryj
+
+# Build settings
+markdown: kramdown
+
+baidu_analysis: cf9d9335d45de97effb142f0e1e0dc14

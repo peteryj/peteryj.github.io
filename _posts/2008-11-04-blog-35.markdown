@@ -1,0 +1,27 @@
+---
+layout: post
+title: nafxcwd.lib(afxmem.obj) :error LNK2005:"void * __cdecl operator new(unsigned int)"
+date: 2008-11-04 22:11
+comments: true
+author: Peter.Y
+categories: debug
+---
+
+* content
+{:toc}
+
+
+
+MFC工程中，在连接时遇到如下错误
+
+nafxcwd.lib(afxmem.obj) :error LNK2005:"void * __cdecl operator new(unsigned int)"
+
+原因：
+MFC库和CRT库中都对new和delete有定义
+
+解决方法：
+强制库连接顺序，原则是MFC库优先于CRT相关的库进行连接，在link一栏中MFC库要填在前面。另外需在ignore lib一栏中补上，防止双重链接。
+
+参考资料：
+[link](http://support.microsoft.com/kb/148652/zh-cn)
+

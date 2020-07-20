@@ -1,0 +1,23 @@
+---
+layout: post
+title: Java反射机制的一点心得
+date: 2010-08-16 23:08
+comments: true
+author: Peter.Y
+categories: java
+---
+
+* content
+{:toc}
+
+
+最近Coding用到Java中的反射机制，基本特性就不介绍了，引一篇帖子备查([link]("http://wenku.baidu.com/view/d7be6b22aaea998fcc220e67.html"))。
+
+我遇到的问题简述如下：
+
+类pa.A封装反射调用，类pb.B中实现了需要反射的类。pa,pb是不同的包。当B中反射的类是B自身，或是B的内部类时，可以正常反射。当B中反射的是一个接口类（例如IA）的实现类时，不管是匿名类还是有名类，均会引发ensureMemAccess错误，即Java认定你没有权限访问该方法，尽管接口和实现以及方法全部都是public的。
+
+产生这个问题的原因是跟包访问的权限有关，当把这两个类都放到同一个包下时，一切正常。
+
+如果为了代码结构一定要放在不同的包内，同时又要使用反射机制的放在，那么建议放开访问权限，方法是当获得了调用反射类方法的Method对象后，在调用invoke之前，调用setAccessible(true)来把权限释放开。这样反射机制就可以继续正常工作了。
+

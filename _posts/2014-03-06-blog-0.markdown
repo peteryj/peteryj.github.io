@@ -1,0 +1,42 @@
+---
+layout: post
+title: 建立Go工作环境
+date: 2014-03-06 15:03
+comments: true
+author: Peter.Y
+categories: go
+---
+
+* content
+{:toc}
+
+最近在折腾Go语言，找了个开源项目nsq研究源代码。不过前两天不小心把系统搞挂了，这次又要重做一遍，记录一下，备忘。
+ 
+
+1. vim+golang插件+ctags(新版本支持Go)
+
+2. Go1.2版本，官网可以下载。
+
+    1) 解压到~/tool/go
+
+    2) 配置环境变量：GOROOT=$HOME/tool/go; GOPATH=$HOME/go_wsp;PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+
+    3) 提示符下输入 go，确认配置正确
+
+3. godep (安装nsq要用到)
+
+    1) 安装mercurial, sudo apt-get install mercurial (code.google.com使用的版本控制工作)
+
+    2) 下载godep: go get github.com/kr/godep
+
+    3) 第2)步可能Fail，需翻墙。安装goagent，之后使用http_proxy=<proxy_addr> go get github.com/kr/godep
+
+    4) 安装：go install github.com/kr/godep (真是简单的赏心悦目)
+
+4. nsq
+
+     1) godep get github.com/bitly/nsq/...
+
+     2) ./test.sh
+
+ 

@@ -1,0 +1,41 @@
+---
+layout: post
+title: 建立openwrt虚拟环境
+date: 2011-07-18 15:07
+comments: true
+author: Peter.Y
+categories: linux
+---
+
+* content
+{:toc}
+
+
+
+最近的工作任务要用到openwrt，之前没怎么接触过，准备学习学习。
+
+首先要搭建环境，而我又不想去买开发板，所以建个虚拟环境是最佳选择。
+
+【软件环境】
+
+虚拟机：VirtualBox
+
+OpenWrt镜像：[link](http://backfire.openwrt.org/10.03/x86/openwrt-x86-ext2.image.gz)
+
+【操作步骤】
+
+1. 转换镜像文件格式：
+
+>VBoxManage convertfromraw --format VMDK openwrt-x86-ext2.image openwrt-x86-2.6-ext2.vmdk
+
+2. 打开VirtualBox：
+
+新建一个虚拟机系统（类型均选择其它），内存128M，设置2块网卡，硬盘选择第1步转换好的文件。
+
+3.启动该虚拟OpenWrt并设置IP地址
+
+4.在宿主机的浏览器上输入该IP地址，打开后即可配置该OpenWrt系统。
+
+
+参考链接：[link](http://www.right.com.cn/forum/thread-35212-1-1.html)
+

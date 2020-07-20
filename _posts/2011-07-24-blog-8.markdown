@@ -1,0 +1,63 @@
+---
+layout: post
+title: ebtables基本使用
+date: 2011-07-24 13:07
+comments: true
+author: Peter.Y
+categories: linux
+---
+
+* content
+{:toc}
+
+
+
+ebtables和iptables类似，都是Linux系统下网络数据包过滤的配置工具。既然称之为配置工具，就是说过滤功能是由内核底层提供支持的，这两个工具只是负责制定过滤的rules.
+
+
+这里主要介绍ebtables，iptables类似。
+
+过滤时机
+======
+
+要了解过滤时机，首先得了解网络数据包进入网卡后，在系统中的转换流程，见图：
+
+从上图可以看到数据包从进入到离开系统，要经过PreRoute，Input，Forward，Output，PostRoute这五个阶段。每个阶段中包括了一些节点，每个节点就是一个过滤时机。当数据包行进到某个节点时，系统就是检测对应节点的过滤规则并进行过滤。从图中还可以发现，对于每个阶段，ebtables的过滤时机都比iptables要早。
+
+ebtables配置
+======
+
+ebtables的配置分为表、链和规则三级。
+1. 表
+
+表是内置且固定的，共有三种: filter, nat, broute，用-t选项指定。最常用的就是filter了，所以不设-t时默认就是这个表。nat用于地址转换，broute用于以太网桥。
+
+2. 链
+
+链有内置和自定义两种 。不同的表内置的链不同，这个从数据包的流程图中就可以看出来。所谓自定义的链也是挂接在对应的内置链内的，使用-j让其跳转到新的链中。
+
+3. 规则
+
+每个链中有一系列规则，每个规则定义了一些过滤选项。每个数据包都会匹配这些项，一但匹配成功就会执行对应的动作。
+
+所谓动作，就是过滤的行为了。有四种，ACCEPT，DROP，RETURN和CONTINUE。常用的就是ACCEPT和DROP，另两种就不细述了。
+
+ebtables基本命令
+======
+
+有了上面的简单介绍，再熟悉一些基本命令就可以使用了。
+
+1. 列表：
+>ebtables -L
+>ebtables -L --Lc , 查看各rule的匹配次数以及字节数
+
+2. 新建/删除链
+>ebtables -N <chain_name>
+>ebtables -X <chain_name>
+
+3. 新建规则
+>ebtables -A <chain_name> [ rules ]
+>[rules]有几种<br />-s 源MAC -d 目标MAC -i 入接口 -o 出接口
+
+
+参考文档: [ebtables User Manual](http://ebtables.sourceforge.net/misc/ebtables-man.html)

@@ -1,0 +1,38 @@
+---
+layout: post
+title: C#强名称程序集下引用弱名称库
+date: 2010-09-06 11:09
+comments: true
+author: Peter.Y
+categories: c#
+---
+
+* content
+{:toc}
+
+
+首先查一下什么是强名称程序集，见百度百科[帖子](http://baike.baidu.com/view/1145682.htm)
+
+简单来说，就是为了解决Windows Dll Hell问题的，即不同公司开发同名程序集会相互覆盖。所谓强名称，就是使用RSA技术，采用一对公/私秘钥作为程序集的发布者，以进行区分，防止覆盖。
+
+现在问题是有一个强名称程序集的工程，需要引用一个弱名称库，也就是普通库了。正常引用是失败的。错误显示是
+>Assembly generation failed -- 引用的程序集 'xxx' 没有强名称
+
+解决办法如下：
+
+1. 创建一个新的随机密钥对。
+> d:\temp> sn -k test.snk
+
+2. 反编译目标程序集(假设是 a.dll)。
+> d:\temp> ildasm a.dll /out=a.il
+
+3. 重新编译，附带强命名参数。
+> d:\temp> ilasm a.il /dll /resource=a.res /key=test.snk /optimize
+
+4. 验证签名信息。
+> d:\temp> sn -v a.dll
+
+注：以上命令行工具均在.net framework的BIN目录下
+
+参考链接：[link](http://www.rainsts.net/article.asp?id=644)
+

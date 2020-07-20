@@ -1,0 +1,48 @@
+---
+layout: post
+title: LFS小记
+date: 2012-07-26 16:07
+comments: true
+author: Peter.Y
+categories: linux
+---
+
+* content
+{:toc}
+
+第一次尝试使用LFS LiveCD搭建自己的LinuxSystem，成功。
+
+#准备工作
+
+使用LFS LiveCD的版本是lfslivecd-x86-6.3-r2160.iso，配套的LFS-Book是v6.3版
+
+#过程简介
+基本上是完全依照LFS-Book的教程上来做的，中间略有一些小插曲，Google搞定。这里不细述了。简单概括一下LFS的思路。
+
+首先是通过LFS LiveCD启动光盘加载光盘中的系统，中间略过一些小的启动配置（如时间，键盘布局等）。
+
+第二步是准备好存储空间。这其中包括
+
+  * 建立硬盘分区（cfdisk/fdisk);
+  * 在分区上建立文件系统(mke2fs:用于建立ext3文件系统;swap:用于建立swap文件系统）
+  * 挂载到当前系统中(mount:挂载一般文件系统, /sbin/swapon:启动swap分区)
+
+第三步就是编译软件包
+
+  * 编译基本工具链(gcc, glibc,binutils,linux-libc-headers)
+  * 使用工具链编译其它工具(...)
+
+第四步是进入虚拟文件系统，开始构筑存储空间上的目录以及安装工具
+
+  * 挂载虚拟内核文件系统
+  * 切换到chroot模式，
+  * 创建并填充必备的系统目录
+  * 安装工具链，调整工具链，使后续安装的软件基于此次安装好的工具
+  * 安装完毕，清理一些中间文件
+  
+第五步是配置启动脚本
+
+第六步是配置内核以及安装grub，使系统能够从硬盘引导 最后一步，就是退出chroot，卸载掉之前挂载的虚拟内核文件系统，然后重启。
+
+reboot顺利的进入Grub，选择之前建好的启动项，进入linux，OK，搞定。
+

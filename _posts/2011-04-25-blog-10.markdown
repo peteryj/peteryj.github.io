@@ -1,0 +1,74 @@
+---
+layout: post
+title: C#控件的闪烁问题解决方法总结
+date: 2011-04-25 05:04
+comments: true
+author: Peter.Y
+categories: c#
+---
+
+* content
+{:toc}
+
+
+
+最近对代码作了一些优化，试验后效果还可以，但是发现界面会闪烁，具体是TreeView控件会闪烁，语言为C#，IDE为VS2005。在查阅一些资料，使用了一些基本技术后（如开启双缓冲），发现没什么效果。
+
+于是使用Profiler工具，查找出瓶颈在于每次更新完界面的EndUpdate操作（使用这个是为了减少界面更新次数，但这里不理想是因为控件中中的元素很多），猜想大概每次更新，.Net底层都会更新重绘每个图元，所以速度会慢，造成闪烁。但是如果这样，使用双缓冲应该会有较好效果。再看代码，发现可能是更新动作太过频繁，于是降低速度，有所好转，但还是不行。
+
+继续在网上查阅，最终找到一个方案比较合适。原来底层重绘每次会清除画布，然后再全部重新绘制，这才是导致闪烁最主要的原因。于是重载消息发送函数操作，禁掉这条消息。代码如下：
+
+{% highlight c# linenos %}
+        protected override void WndProc(ref Message m)
+
+        {
+
+            if (m.Msg == 0x0014) // 禁掉清除背景消息
+
+                return;
+
+            base.WndProc(ref m);
+
+        }
+{% endhighlight %}
+
+成功！
+
+注：双缓冲还是有用的，在更新不是很频繁且控件内含元素不是特别多的时候。一旦元素过多，每次更新时间都比较长，即便使用了双缓冲，仍解决不了闪烁问题。个人认为最终比较理想的方法还是禁掉清除背景消息。
+
+
+附：一些尝试过但失败的记录
+
+1）使用setStyle
+
+网上有说使用setStyle函数去设置该控件的参数，具体为：
+
+SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer, true);
+
+这三个选项参数后者是依赖前者的，必须并存，否则无效。并且这个函数本身是protected的，所以首先需要继承某控件再使用。
+
+      这个目标是跟前面正确解决方案一致，也是禁止清除背景并开启双缓冲，但需要使用用户绘制选项，而且是全部交由用户绘制。这需要自己实现控件的全部绘制，比较麻烦。所以这个方法不是完全不可行，但是需要额外工作量，不推荐。我也没有使用。
+
+2）使用BeginUpdate和EndUpdate
+
+      这一对操作对于需要批量操作更新控件的情景有比较好的效果，比如初始化时批量添加了大量节点。坏处就在于不能即时更新。所以，对于频繁的更新节点并希望立即反映到界面的情况不适用。如果使用并且没有禁掉清除界面消息的话，则控件看起来就会不停的闪烁，而且以白底为主，内容几乎不可见（这个视频繁程度而定）。因为界面更新都在EndUpdate处完成，操作太多导致EndUpdate阻塞时间过长，且清空在先，更新在后，导致界面看起来长时间处于空白状态。
+
+3）使用ControlStyles.EnableNotifyMessage选项
+
+这个选项的作用和正确解决方案也是一致的。使用方法是：
+
+{% highlight c# linenos %}
+
+SetStyle(ControlStyles.EnableNotifyMessage, true);
+
+      protected override void onNotifyMessage(Message m)
+
+      {
+
+               // 此处书写过滤消息代码
+
+      }
+
+{% endhighlight %}
+
+但是实际实验显示无效果，不知是什么原因，没有细究。

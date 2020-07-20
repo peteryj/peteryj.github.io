@@ -1,0 +1,47 @@
+---
+layout: post
+title: OpenWRT下的远程调试
+date: 2011-08-23 13:08
+comments: true
+author: Peter.Y
+categories: linux
+---
+
+* content
+{:toc}
+
+
+
+# 一、建立调试环境
+1. 配置编译OpenWRT
+a) make menuconfig
+启动以下两项
+Advanced configuration options (for developers) &ndash;> Toolchain options &ndash;> Build gdb
+<em style="line-height: normal;">Utilities</em> &ndash;> <em style="line-height: normal;">gdbserver</em>
+b) 编译
+make V=99，如果已经编译过，则make toolchain/install 编译下gdb即可
+2. 编译待调试程序
+a) make menuconfig
+启动Advanced configuration options (for developers) &ndash;> Build options &ndash;> Enable debugging
+b) 编译程序
+以snmpd为例 ，使用make package/net-snmp/compile去编译程序，生成带调试信息的snmpd，作为宿主机调试使用。
+ 
+以上就是准备工作。下面简单介绍一下调试过程。
+
+# 二、调试程序
+1.启动目标机上的待调试程序
+首先加载并启动编译好的OpenWRT系统，然后
+gdbserver <local_IP>:<port> <program> <args>
+2. 启动宿主机gdb
+(这里要修复一个bug，方法是：cd <openwrtdir>/staging_dir/<targetarch>; rmdir lib; ln -s ../toolchain-<targetarch>_<gccver>/lib lib)。
+cd <openwrtdir>/build_dir/toolchain-<targetarch>_<gccver>/gdb-6.3/gdb
+./gdb               -- 启动
+3. 设置gdb，并启动调试程序
+1) set solib-absolute-prefix <openwrtdir>/staging_dir/<targetarch>
+2) file <openwrtdir>/build_dir/<targetarch>/<path>/<executable>
+3) 连接目标机：target remote <ip>:<port>
+4)连接成功之后，就可以按正常的gdb调试流程进行调试了。
+ 
+# 参考
+1) [openwrt-remote-debugging](http://techblog.hollants.com/2009/08/openwrt-remote-debugging/)
+2) [GDB User Manual](http://sourceware.org/gdb/current/onlinedocs/gdb/)

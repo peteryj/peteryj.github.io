@@ -1,0 +1,31 @@
+---
+layout: post
+title: Matlab画图及生成exe文件
+date: 2009-03-24 17:03
+comments: true
+author: Peter.Y
+categories: matlab
+---
+
+* content
+{:toc}
+
+
+
+这两天做个演示用例，用到了Matlab的画图功能，总结一下，备查。
+
+1. 画图
+写个简单的.m文件是很Easy的，罗列下几个常用函数的使用方法
+[示例1]：plot(X,Y,'b-','linewidth',2);
+X,Y表示向量，分别代表X轴和Y轴，'b-'表示线条颜色和样式，'linewidth',2这两个参数表示线条宽度是2
+[示例2]：subplot(221)或者subplot(2,2,1)
+前两个数字表示子图布局，本例中2X2，第三个参数表示画在第几个区域中，先上后下，先左后右标记为1,2,3,4。`
+
+[示例3]：title('aa'), xlabel('x'), ylabel('y')
+这个比较简单，标题，X轴，Y轴文字`
+
+2. 生成EXE
+Matlab支持将.m文件编译生成exe文件。方法如下：
+a. 生成EXE：在Matlab中输入mcc -m filename.m进行编译生成，这一步会在当前目录下生成C源码文件，并可能会询问采用何种编译器进行编译(Windows下推荐用VC的编译器)。
+b. 运行环境：exe程序的运行可以脱离Matlab，但是必须安装Matlab的运行环境。MCRinstall.exe，位于安装目录的\toolbox\compiler\deploy\win32目录下，将其复制到需要执行生成EXE的环境中，运行安装，并设置环境变量path，将<安装目录>\runtime\win32添加到末尾(XP下应该会自动进行设置，不用添加)。
+c. 最后将编译生成的`*.exe` , `*.crt`, `*.prj`文件复制到目标机器上，就可以运行了。`
