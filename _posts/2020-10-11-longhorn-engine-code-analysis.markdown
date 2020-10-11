@@ -147,7 +147,7 @@ replica 执行环境所在的容器`longhorn-instance-manager`把宿主Node的�
 
 其核心架构如下图
 
-![arch](https://drive.google.com/file/d/1eap0YuCmEKjjep7YO4x1twAwbWd1XoUv/preview)
+![arch](/images/longhorn/longhorn-engine.png)
 
 我们重点分析下`controller`模块，`replica`模块和`sync`模块
 
