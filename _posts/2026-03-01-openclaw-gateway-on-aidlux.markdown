@@ -1,7 +1,7 @@
 ---
 layout: post
 title: OpenClaw Gateway 在 AIDLux 上的部署实践与坑点记录
-date: 2026-03-01 15:00
+date: 2026-03-01 01:00
 comments: true
 author: Peter.Y
 categories: AI aidlux openclaw 
