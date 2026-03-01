@@ -7,6 +7,9 @@ author: Peter.Y
 categories: AI aidlux openclaw nodejs
 ---
 
+* content
+{:toc}
+
 ## 背景
 
 OpenClaw 是一个强大的 AI 助手平台，但在 AIDLux（AI 设备专用 Linux 发行版）上部署时会遇到一些特殊问题。本文记录了我在 AIDLux 上部署 OpenClaw Gateway 时遇到的坑和解决方案。
